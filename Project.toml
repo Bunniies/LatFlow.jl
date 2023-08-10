@@ -1,0 +1,11 @@
+name = "LatFlow"
+uuid = "0147cc21-35cc-4964-891b-00c074a61d32"
+authors = ["Alessandro Conigli <alessandroconigli@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+CircularArrays = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
