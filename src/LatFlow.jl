@@ -2,7 +2,7 @@ module LatFlow
 
 using Distributions, CircularArrays, PyPlot, Random
 using Flux
-using Flux: onehotbatch, onecold, @epochs
+using Flux: onehotbatch, onecold, @epochs, @functor
 using Base:@kwdef
 
 include("./params.jl")
