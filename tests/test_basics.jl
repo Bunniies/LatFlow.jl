@@ -22,3 +22,6 @@ eval_action = action(prior)
 
 # test freezing_mask
 mask =  freezing_mask(1, actionpar=physpar)
+
+# test create conv net
+net = create_conv_net(ModelParams())
