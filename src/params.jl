@@ -5,12 +5,12 @@ struct DeviceParams
         if id >= 0 && CUDA.functional()
             CUDA.device!(id)
             device = Flux.gpu
-            @info "Device: GPU with id=$(id)"
+            @info "Chosen device: GPU with id=$(id)"
         else
             if id > 0
                 @warn "You've set GPU with id = $id, but CUDA.functional() is $(CUDA.functional())"
             end
-            @info "Device: CPU"
+            @info "Chosen device: CPU"
             id = -1
             device = Flux.cpu
         end
@@ -35,4 +35,11 @@ ActionParams(L, m, lambda) = ActionParams(L, [L, L], m, lambda)
     kernel_size::Int64 = 3
     use_tanh_last::Bool = true
     use_bn::Bool = false
+end
+
+@kwdef struct TrainingParams
+    era::Int64 = 30
+    epochs::Int64 = 100
+    batch_size::Int64 = 64
+    eta_lr::Float64 = 0.002
 end

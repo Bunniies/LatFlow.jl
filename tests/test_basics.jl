@@ -25,3 +25,15 @@ mask =  freezing_mask(1, actionpar=physpar)
 
 # test create conv net
 net = create_conv_net(ModelParams())
+Chain(net...)(Flux.unsqueeze(prior,3))
+
+# test create affne layers
+layer = create_affine_layers(ModelParams(), ActionParams(), DeviceParams(-1))
+layer(Flux.unsqueeze(prior,3))
+
+# test evolve prior with flow
+
+evolve_prior_with_flow(layer, ActionParams(), TrainingParams(), DeviceParams(-1))
+
+aa = Normal{Float32}(0.f0, 1.f0)
+logpdf.(aa, prior)
