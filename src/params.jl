@@ -1,3 +1,5 @@
+
+
 struct DeviceParams
     id::Int
     device::Function 
@@ -38,8 +40,15 @@ ActionParams(L, m, lambda) = ActionParams(L, [L, L], m, lambda)
 end
 
 @kwdef struct TrainingParams
-    era::Int64 = 30
+    iterations::Int64 = 100
     epochs::Int64 = 100
     batch_size::Int64 = 64
     eta_lr::Float64 = 0.002
+end
+
+@kwdef struct HyperParams
+    dp::DeviceParams = DeviceParams(-1)
+    ap::ActionParams = ActionParams()
+    mp::ModelParams = ModelParams()
+    tp::TrainingParams = TrainingParams()
 end

@@ -31,9 +31,48 @@ Chain(net...)(Flux.unsqueeze(prior,3))
 layer = create_affine_layers(ModelParams(), ActionParams(), DeviceParams(-1))
 layer(Flux.unsqueeze(prior,3))
 
-# test evolve prior with flow
+# test get training parameters
 
-evolve_prior_with_flow(layer, ActionParams(), TrainingParams(), DeviceParams(-1))
+ps = get_training_param(layer)
 
-aa = Normal{Float32}(0.f0, 1.f0)
-logpdf.(aa, prior)
+## test evolve prior with flow
+
+x, logq = evolve_prior_with_flow(layer, ActionParams(), TrainingParams(), DeviceParams(-1))
+logp = -action(x)
+compute_KL_div(-action(x), logq)
+
+
+fig, ax = plt.subplots(5,5, dpi=125, figsize=(5,5))
+for i in 1:5
+    for j in 1:5
+        ind = i*5 + j
+        ax[i,j].imshow(tanh(x[:, :, ind]), vmin=-1, vmax=1, cmap=:viridis)
+        ax[i,j].axes.xaxis.set_visible(false)
+        ax[i,j].axes.yaxis.set_visible(false)
+    end
+end
+display(gcf())
+close("all")
+
+## test HyperParams
+hp = HyperParams(DeviceParams(1), ActionParams(), ModelParams(), TrainingParams())
+hp = HyperParams()
+
+## test training
+model, history = train(hp)
+
+##
+x, logq = evolve_prior_with_flow(model, ActionParams(), TrainingParams(), DeviceParams(-1))
+
+
+fig, ax = plt.subplots(5,5, dpi=125, figsize=(5,5))
+for i in 1:5
+    for j in 1:5
+        ind = i*5 + j
+        ax[i,j].imshow(tanh(x[:, :, ind]), vmin=-1, vmax=1, cmap=:viridis)
+        ax[i,j].axes.xaxis.set_visible(false)
+        ax[i,j].axes.yaxis.set_visible(false)
+    end
+end
+display(gcf())
+close("all")

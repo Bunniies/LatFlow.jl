@@ -73,7 +73,7 @@ function evolve_prior_with_flow(layer, ap::ActionParams, tp::TrainingParams, dp:
     x_pr = sampleNorm(batch_size, actionpar=ap)
     logq = sum(logpdf.(Normal{Float32}(0.f0,1.f0), x_pr), dims=(1:ndims(x_pr)-1)) |> dp.device
     for item in layer
-        x_pr, logJ = forward(item, x_pr)
+        x_pr, logJ = forward(item |> dp.device, x_pr)
         logq = logq - logJ
     end
     return x_pr, logq
