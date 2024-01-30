@@ -1,14 +1,10 @@
-function train!(affine_layers, hp::HyperParams, action, prior; flog::Union{String, IOStream}="")
-
-    println(flog, "#==============================#")
-    println(flog, "#======= START TRAINING =======#")
-    println(flog, "#==============================#")
+function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="")
 
     @unpack dp, ap, mp, tp = hp
     @unpack iterations, epochs, batch_size, eta_lr = tp
     device = dp.device
 
-    # affine_layers = create_affine_layers(hp)
+    affine_layers = create_affine_layers(hp)
     ps = get_training_param(affine_layers)
 
     opt = Adam(tp.eta_lr)
@@ -17,7 +13,6 @@ function train!(affine_layers, hp::HyperParams, action, prior; flog::Union{Strin
         "epochs"          => Int[],
         "loss"            => Float64[],
         "ess"             => Float64[],
-        "timing"          => Float64[],
         "acceptance_rate" => Float64[]
     )
 
@@ -26,7 +21,7 @@ function train!(affine_layers, hp::HyperParams, action, prior; flog::Union{Strin
         
         # train mode 
         Flux.trainmode!(affine_layers)
-        ts = @timed begin
+        @timeit "Training" begin
             for _ in 1:iterations
 
                 x_pr = rand(prior, ap.lattice_shape..., batch_size ) 
@@ -56,11 +51,16 @@ function train!(affine_layers, hp::HyperParams, action, prior; flog::Union{Strin
         println(flog, "    ess:  $(ess)")
 
         push!(history[!,"epochs"], epoch)
-        push!(history[!,"timing"], ts.time)
         push!(history[!,"loss"], loss)
         push!(history[!,"ess"], ess)
         push!(history[!,"acceptance_rate"], 0.0)
     end
-    # return affine_layers, history
-    return history
+
+    # logging
+    println(flog, " ")
+    println(flog, history)
+    println(flog, " ")
+
+    return affine_layers, history
+    # return history
 end

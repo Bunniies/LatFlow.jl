@@ -1,9 +1,5 @@
 function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, device=cpu, seed=3430)
 
-    # println(flog, "#==============================#")
-    # println(flog, "#========== MCMC STEP =========#")
-    # println(flog, "#==============================#")
-
     rng = MersenneTwister(seed)
     mcmc_hist = DataFrame(
         "logp"     => Float32[],
@@ -14,7 +10,9 @@ function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, de
     )
 
     counter = 0
-    ts = @timed begin
+    #ts = @timed begin
+    @timeit "MCMC step" begin
+        
         for _ in 1:round(Int, nsamples/batchsize)
             x_out_, logq = evolve_prior_with_flow(prior, layer, batchsize=batchsize, lattice_shape=lattice_shape, device=device)
             logq = vec(logq) |> cpu
@@ -54,6 +52,7 @@ function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, de
             end
         end
     end
-    push!(mcmc_hist[!, "timing"], ts)
+    #push!(mcmc_hist[!, "timing"], ts.time)
+    #println(flog, "Total training time: ", sum(history[!, "timing"]))
     return mcmc_hist
 end

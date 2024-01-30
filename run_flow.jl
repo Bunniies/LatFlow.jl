@@ -4,7 +4,7 @@ Pkg.activate("/Users/alessandroconigli/.julia/dev/LatFlow")
 Pkg.instantiate()
 
 using CUDA, ArgParse, TOML, Logging, ADerrors, Flux
-using LatFlow, PyPlot, Statistics
+using LatFlow, PyPlot, Statistics, TimerOutputs
 
 
 
@@ -95,11 +95,10 @@ function parse_arg(fname)
     try
         println(flog, CUDA.versioninfo())
     catch
-        println(flog, "# NVIDIA driver for GPU not installed. Training is performed on CPU.")
+        println(flog, "# NVIDIA driver for GPU not installed.\n# Training is performed on CPU.")
     end
     println(flog, " ")
     println(flog, "# END [Environment Info]")
-    println(flog, "#============================================================================#")
     println(flog, " ")
 
 
@@ -124,18 +123,15 @@ end
 
 parsed_flags = parse_flag()
 infile = parsed_flags["i"]
-hp, prior, action, layers, flog, nsamples, ntherm, seed = parse_arg(infile)
+hp, prior, action, _layers, flog, nsamples, ntherm, seed = parse_arg(infile)
 
 # training
-println(flog, "# [Training]")
-train_hist = train!(layers, hp, action, prior, flog=flog)
-
-println(flog, " ")
-println(flog, train_hist)
-println(flog, " ")
-println(flog, "# Total training time: ", sum(train_hist[!, "timing"]))
+println(flog, "# [START TRAINING]")
+layers, train_hist = train(hp, action, prior, flog=flog)
 println(flog, "# END [Training]")
-println(flog, " ")
+println(flog," ")
+
+
 
 
 
@@ -153,7 +149,7 @@ for i in 1:4
     end
 end
 
-display(gcf())
+#display(gcf())
 savefig("log/trained_config.pdf")
 close("all")
 
@@ -165,7 +161,7 @@ action = Phi4ScalarAction(hp.ap.m2, hp.ap.lambda)
 
 S = action(x)
 fit_b = mean(S) - mean(S_eff)
-@show fit_b
+#@show fit_b
 #print("slope 1 linear regression S = -logr + $fit_b")
 fig, ax = plt.subplots(1,1, dpi=125, figsize=(4,4))
 ax.hist2d(vec(S_eff), vec(S), bins=20,
@@ -178,7 +174,7 @@ ax.set_xlabel(L"S_{\mathrm{eff}} \equiv -\log ~ r(z)")
 ax.set_ylabel(L"S(z)")
 ax.set_aspect(:equal)
 plt.legend(prop=Dict("size"=> 6))
-display(gcf())
+#display(gcf())
 savefig("log/trained_action.pdf")
 close("all")
 
@@ -197,6 +193,9 @@ println(flog, " ")
 
 susc = susceptibility(cnfg); uwerr(susc)
 println(flog,"# Susceptibility: ", susc )
+
+# Timings
+print_timer(flog, linechars=:ascii)
 
 
 

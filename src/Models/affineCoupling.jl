@@ -3,6 +3,8 @@ struct AffineCoupling{Model, Mask}
     mask::Mask
 end
 
+Flux.@functor AffineCoupling
+
 function (layer::AffineCoupling)(cnfg)
     x_pr = cnfg[1]
     logq_prec = cnfg[2]

@@ -221,6 +221,7 @@ function get_training_param(layer)
 end
 
 
+using TimerOutputs
 
 function train(hp::HyperParams, action)
     dp = hp.dp
@@ -254,7 +255,9 @@ function train(hp::HyperParams, action)
         
         # train mode 
         Flux.trainmode!(affine_layers)
-        ts = @timed begin
+        # ts = @timed begin
+        @timeit "Training" begin
+            
             for kk in 1:iterations
 
                 #@info "     iterations=$(kk)"
@@ -284,7 +287,8 @@ function train(hp::HyperParams, action)
         ess = compute_ESS(logp, logq |> device)
         @show ess 
         push!(history[!,"epochs"], epoch)
-        push!(history[!,"timing"], ts.time)
+        #push!(history[!,"timing"], ts.time)
+        push!(history[!,"timing"], 0.0)
         push!(history[!,"loss"], loss)
         push!(history[!,"ess"], ess)
         push!(history[!,"acceptance_rate"], 0.0)

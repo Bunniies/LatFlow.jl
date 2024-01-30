@@ -1,7 +1,8 @@
 module Tools
 
 using ..Actions, ..Models
-using Random, Statistics, Flux, ProgressMeter, ADerrors, DataFrames
+using Random, Statistics, Flux, ADerrors, DataFrames
+using TimerOutputs, ProgressMeter
 
 include("metrics.jl")
 export compute_ESS, compute_KL_div
