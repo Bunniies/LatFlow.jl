@@ -1,5 +1,3 @@
-
-
 struct DeviceParams
     id::Int
     device::Function 

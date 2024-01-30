@@ -1,21 +1,47 @@
 module LatFlow
 
-using Base:@kwdef
-using Distributions, CircularArrays, PyPlot, Random, ProgressMeter, UnPack
-using Flux
-using Flux: onehotbatch, onecold, @epochs, @functor
-using CUDA
-using DataFrames
 
-include("./params.jl")
-include("./types.jl")
-include("./tools.jl")
-include("./couplingLayers.jl")
-include("./training.jl")
+include("Params/Params.jl")
 
-export DeviceParams, ActionParams, ModelParams, TrainingParams, HyperParams
-export Configuration, Phi4ScalarAction
-export sampleNorm, freezing_mask, compute_KL_div, compute_ESS, get_training_param
-export AffineCoupling, create_conv_net, create_affine_layers, evolve_prior_with_flow
-export train
+using .Params
+export DeviceParams, ModelParams, TrainingParams, HyperParams
+export ActionParams
+
+include("Priors/Priors.jl")
+
+using .Priors
+export get_prior
+
+include("Actions/Actions.jl")
+
+using .Actions
+export Phi4ScalarAction
+
+
+include("Models/Models.jl")
+
+using .Models
+export build_cnn, get_training_param
+export AffineCoupling, forward, reverse, create_affine_layers, evolve_prior_with_flow, freezing_mask
+
+include("Tools/Tools.jl")
+
+using .Tools
+export compute_ESS, compute_KL_div
+export build_mcmc
+export green, susceptibility
+
+include("Train/Train.jl")
+
+using .Train
+export train!
+
+
+# using Distributions, CircularArrays, PyPlot, Random, ProgressMeter, UnPack
+# using Flux
+# using Flux: onehotbatch, onecold, @epochs, @functor
+# using CUDA
+
+
+
 end 

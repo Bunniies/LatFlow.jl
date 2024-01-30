@@ -1,11 +1,11 @@
 using Revise
 using LatFlow
 using PyPlot, Statistics
-using CircularArrays
+using Flux
 ##
 # test action parameters
 
-physpar = ActionParams(10, 1.0, 1.0)
+physpar = ActionParams()
 
 # test Configurations
 cnfg = Configuration{Float64}(physpar.dim)
@@ -13,7 +13,7 @@ cnfg.shape
 cnfg.fields
 
 # test sampling priors
-prior = sampleNorm(1000)
+prior = sampleNorm(1000, actionpar=physpar)
 mean(prior[1,1,:])
 
 # test action
@@ -24,7 +24,7 @@ eval_action = action(prior)
 mask =  freezing_mask(1, actionpar=physpar)
 
 # test create conv net
-net = create_conv_net(ModelParams())
+net = build_cnn(ModelParams())
 Chain(net...)(Flux.unsqueeze(prior,3))
 
 # test create affne layers
@@ -76,3 +76,6 @@ for i in 1:5
 end
 display(gcf())
 close("all")
+
+
+
