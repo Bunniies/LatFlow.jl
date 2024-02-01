@@ -1,7 +1,7 @@
 module Params
 
 using Base:@kwdef
-using Flux, CUDA
+using Flux, CUDA, UnPack, TimerOutputs
 
 
 struct DeviceParams
@@ -63,6 +63,10 @@ export TrainingParams
     tp::TrainingParams = TrainingParams()
 end
 export HyperParams
+
+include("workspace.jl")
+export NFworkspace
+
 
 
 

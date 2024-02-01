@@ -1,9 +1,11 @@
 module LatFlow
 
+
 include("Params/Params.jl")
 using .Params
 export DeviceParams, ModelParams, TrainingParams, HyperParams
 export ActionParams
+export NFworkspace
 
 include("Priors/Priors.jl")
 using .Priors
@@ -28,13 +30,6 @@ export green, susceptibility
 include("Train/Train.jl")
 using .Train
 export train
-
-
-# using Distributions, CircularArrays, PyPlot, Random, ProgressMeter, UnPack
-# using Flux
-# using Flux: onehotbatch, onecold, @epochs, @functor
-# using CUDA
-
 
 
 end 

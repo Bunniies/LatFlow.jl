@@ -149,7 +149,6 @@ for i in 1:4
     end
 end
 
-#display(gcf())
 savefig("log/trained_config.pdf")
 close("all")
 
@@ -174,7 +173,6 @@ ax.set_xlabel(L"S_{\mathrm{eff}} \equiv -\log ~ r(z)")
 ax.set_ylabel(L"S(z)")
 ax.set_aspect(:equal)
 plt.legend(prop=Dict("size"=> 6))
-#display(gcf())
 savefig("log/trained_action.pdf")
 close("all")
 
@@ -197,6 +195,8 @@ println(flog,"# Susceptibility: ", susc )
 # Timings
 print_timer(flog, linechars=:ascii)
 
+sleep(1)
+exit()
 
 
 

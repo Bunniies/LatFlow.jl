@@ -30,7 +30,8 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="")
 
                 grads = Flux.gradient(ps) do 
                     x_out, logq_ = affine_layers((x_pr_dev, logq_prec)) 
-                    logq = vcat(logq_)
+                    # logq = vcat(logq_)
+                    logq = dropdims(logq_, dims=(1,ndims(logq_)-1))
                     logp = - action(x_out)
                     loss = compute_KL_div(logp, logq |> device)
                 end
@@ -41,8 +42,8 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="")
         # test mode 
         Flux.testmode!(affine_layers)
         x_out, logq = evolve_prior_with_flow(prior, affine_layers, batchsize=batch_size, lattice_shape=ap.lattice_shape, device=device)
-        #logq = dropdims(logq, dims=(1,ndims(logq)-1))
-        logq = vcat(logq...)
+        logq = dropdims(logq, dims=(1,ndims(logq)-1))
+        #logq = vcat(logq...)
 
         logp = -action(x_out)
         loss = compute_KL_div(logp, logq |> device)
