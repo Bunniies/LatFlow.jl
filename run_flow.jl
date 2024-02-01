@@ -125,6 +125,7 @@ parsed_flags = parse_flag()
 infile = parsed_flags["i"]
 hp, prior, action, _layers, flog, nsamples, ntherm, seed = parse_arg(infile)
 
+
 # training
 println(flog, "# [START TRAINING]")
 layers, train_hist = train(hp, action, prior, flog=flog)
@@ -182,6 +183,7 @@ println(flog, "# [MCMC steps]")
 mcmc_hist = build_mcmc(prior, layers, action, batchsize=hp.tp.batch_size, nsamples=nsamples, lattice_shape=hp.ap.lattice_shape, device=hp.dp.device, seed=seed)
 cnfg = Flux.MLUtils.batch(mcmc_hist[!, "config"][ntherm:end])
 acceptance = mcmc_hist[!, "accepted"] |> mean
+# println(flog, mcmc_hist)
 println(flog, "# Acceptance Rate: ", acceptance)
 println(flog, "# END [MCMC steps]")
 println(flog, " ")

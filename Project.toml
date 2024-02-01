@@ -6,6 +6,7 @@ version = "0.1.0"
 [deps]
 ADerrors = "5e92007d-7bf1-471c-8ceb-4591b8b567a9"
 BDIO = "375f315e-f2c4-11e9-2ef9-134f02f79e27"
+BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 CircularArrays = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

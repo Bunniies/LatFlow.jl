@@ -260,7 +260,6 @@ function train(hp::HyperParams, action)
             
             for kk in 1:iterations
 
-                #@info "     iterations=$(kk)"
                 x_pr = rand(prior, hp.ap.lattice_shape..., batch_size ) 
                 logq_prec = sum(logpdf.(prior, x_pr), dims=1:ndims(x_pr)-1) |> device
                 x_pr_dev = x_pr |> device

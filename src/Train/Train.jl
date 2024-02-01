@@ -1,6 +1,6 @@
 module Train
 
-using DataFrames, Flux, UnPack, ProgressMeter, Distributions, TimerOutputs
+using DataFrames, Flux, UnPack, ProgressMeter, Distributions, TimerOutputs, Random, BSON
 using ..Params, ..Priors, ..Models, ..Actions, ..Tools
 
 include("normalizingflow_train.jl")

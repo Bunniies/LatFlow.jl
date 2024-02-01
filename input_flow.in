@@ -8,7 +8,7 @@ pretrained = false          # if true load pretrained model
 
 [Action]
 name = "phi4"
-lattice_shape = [8,8]
+lattice_shape = [4,4]
 m2 = -4        
 lambda = 8
 beta = 2          # required for xy model only 

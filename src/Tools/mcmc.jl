@@ -6,11 +6,9 @@ function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, de
         "logq"     => Float32[],
         "config"   => Array{Float32, 2}[],
         "accepted" => Bool[],
-        "timing"   => Float64[]
     )
 
     counter = 0
-    #ts = @timed begin
     @timeit "MCMC step" begin
         
         for _ in 1:round(Int, nsamples/batchsize)
@@ -52,7 +50,5 @@ function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, de
             end
         end
     end
-    #push!(mcmc_hist[!, "timing"], ts.time)
-    #println(flog, "Total training time: ", sum(history[!, "timing"]))
     return mcmc_hist
 end
