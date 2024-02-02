@@ -1,4 +1,4 @@
-function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="" )
+function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="", savemode::Bool=true )
 
     @unpack dp, ap, mp, tp = hp
     @unpack iterations, epochs, batch_size, eta_lr = tp
@@ -60,23 +60,25 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="" 
         push!(history[!,"ess"], ess)
         push!(history[!,"acceptance_rate"], acc)
 
-        # save model with best ess
-        if ess >= best_ess
-            println(flog, "    new best ess at epoch $(epoch)")
-            best_ess = ess
-            best_ess_epoch = epoch
-            BSON.@save joinpath("trainedNet", "model_best_ess.bson") affine_layers
-            BSON.@save joinpath("trainedNet", "history_best_ess.bson") hist_mcmc
+        if savemode
+            # save model with best ess
+            if ess >= best_ess
+                println(flog, "    new best ess at epoch $(epoch)")
+                best_ess = ess
+                best_ess_epoch = epoch
+                BSON.@save joinpath("trainedNet", "model_best_ess.bson") affine_layers
+                BSON.@save joinpath("trainedNet", "history_best_ess.bson") hist_mcmc
+            end
+            # save model with best acc
+            if acc >= best_acc
+                println(flog, "    new best acceptance rate at epoch $(epoch)")
+                best_acc = acc
+                best_acc_epoch = epoch
+                BSON.@save joinpath("trainedNet", "model_best_acc.bson") affine_layers
+                BSON.@save joinpath("trainedNet", "history_best_acc.bson") hist_mcmc
+            end
         end
-        # save model with best acc
-        if acc >= best_acc
-            println(flog, "    new best acceptance rate at epoch $(epoch)")
-            best_acc = acc
-            best_acc_epoch = epoch
-            BSON.@save joinpath("trainedNet", "model_best_acc.bson") affine_layers
-            BSON.@save joinpath("trainedNet", "history_best_acc.bson") hist_mcmc
-        end
-
+            
         if acc >= 0.7
             break
         end

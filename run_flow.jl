@@ -110,7 +110,7 @@ function parse_arg(fname)
             end
 
     layers = if !f["Run"]["pretrained"]
-                layers = create_affine_layers(hp)
+                #create_affine_layers(hp)
             else
                 error("Load pretrained model not yet implemented.")
             end

@@ -14,6 +14,7 @@ export get_prior
 include("Actions/Actions.jl")
 using .Actions
 export Phi4ScalarAction
+export XYmodelAction
 
 
 include("Models/Models.jl")
