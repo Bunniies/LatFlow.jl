@@ -17,7 +17,7 @@ tp = TrainingParams(iterations=200, epochs=100, batch_size=64)
 mp = ModelParams(n_layers=4, hidden_ch=[4,4] )
 hp = HyperParams(dp, ap, mp, tp)
 
-prior = get_prior("Normal", mu=0., k=4. *beta, a=0, b=6.28)
+prior = get_prior("VonMises", mu=0., k=4. *beta, a=0, b=6.28)
 action = XYmodelAction(beta)
 
 rand(prior, (8,8))

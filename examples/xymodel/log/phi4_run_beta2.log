@@ -1,0 +1,178 @@
+# [Environment Info]
+# User:       alessandro
+# Host:       propagate
+# Run name:   phi4_run
+# Load model: false
+ 
+# [Device Info]
+# Device:    cpu
+# Device id: -1
+ 
+# [Lattice Setup]
+# Action:       xymodel
+# Lattice size: [4, 4]
+# beta:         2
+ 
+# [Model Parameters]
+# Input channel:   1
+# Output channel:  2
+# Affine layers:   16
+# Hidden channels: [8, 8]
+# Kernel size:     3
+# Use tanh:        true
+# Batch norm:      false
+# Seed:            1994
+ 
+# [Training Parameters]
+# Epochs:        20
+# Iterations:    100
+# Batch size     64
+# Learning rate: 0.008
+ 
+# [Priors]
+Prior: Normal
+ 
+# [Mcmc]
+Nsamples: 8192
+Ntherm:   512
+ 
+# NVIDIA driver for GPU not installed.
+# Training is performed on CPU.
+ 
+# END [Environment Info]
+ 
+# [START TRAINING]
+Epoch: 1
+    loss: -64.655235
+    ess:  0.23489134
+    acc: 0.296875
+    new best ess at epoch 1
+    new best acceptance rate at epoch 1
+Epoch: 2
+    loss: -64.5311
+    ess:  0.1338677
+    acc: 0.297607421875
+    new best acceptance rate at epoch 2
+Epoch: 3
+    loss: -64.82552
+    ess:  0.13332137
+    acc: 0.263916015625
+Epoch: 4
+    loss: -64.932
+    ess:  0.04796929
+    acc: 0.2601318359375
+Epoch: 5
+    loss: -65.188095
+    ess:  0.23975088
+    acc: 0.2625732421875
+    new best ess at epoch 5
+Epoch: 6
+    loss: -64.95095
+    ess:  0.053813305
+    acc: 0.2481689453125
+Epoch: 7
+    loss: -64.789085
+    ess:  0.022747774
+    acc: 0.2484130859375
+Epoch: 8
+    loss: -65.16311
+    ess:  0.20673494
+    acc: 0.2127685546875
+Epoch: 9
+    loss: -64.80699
+    ess:  0.30076545
+    acc: 0.2374267578125
+    new best ess at epoch 9
+Epoch: 10
+    loss: -64.70728
+    ess:  0.20173034
+    acc: 0.273193359375
+Epoch: 11
+    loss: -64.96401
+    ess:  0.44146752
+    acc: 0.17919921875
+    new best ess at epoch 11
+Epoch: 12
+    loss: -65.063065
+    ess:  0.18231216
+    acc: 0.2969970703125
+Epoch: 13
+    loss: -65.31271
+    ess:  0.12278018
+    acc: 0.2503662109375
+Epoch: 14
+    loss: -65.114365
+    ess:  0.069347985
+    acc: 0.1558837890625
+Epoch: 15
+    loss: -65.116104
+    ess:  0.025296947
+    acc: 0.2098388671875
+Epoch: 16
+    loss: -65.11464
+    ess:  0.21226817
+    acc: 0.251708984375
+Epoch: 17
+    loss: -64.75473
+    ess:  0.2917299
+    acc: 0.19384765625
+Epoch: 18
+    loss: -65.02122
+    ess:  0.21130194
+    acc: 0.26220703125
+Epoch: 19
+    loss: -64.88152
+    ess:  0.09217304
+    acc: 0.150390625
+Epoch: 20
+    loss: -65.22989
+    ess:  0.13367786
+    acc: 0.227294921875
+ 
+20×4 DataFrame
+ Row │ epochs  loss      ess        acceptance_rate
+     │ Int64   Float64   Float64    Float64
+─────┼──────────────────────────────────────────────
+   1 │      1  -64.6552  0.234891          0.296875
+   2 │      2  -64.5311  0.133868          0.297607
+   3 │      3  -64.8255  0.133321          0.263916
+   4 │      4  -64.932   0.0479693         0.260132
+   5 │      5  -65.1881  0.239751          0.262573
+   6 │      6  -64.951   0.0538133         0.248169
+   7 │      7  -64.7891  0.0227478         0.248413
+   8 │      8  -65.1631  0.206735          0.212769
+   9 │      9  -64.807   0.300765          0.237427
+  10 │     10  -64.7073  0.20173           0.273193
+  11 │     11  -64.964   0.441468          0.179199
+  12 │     12  -65.0631  0.182312          0.296997
+  13 │     13  -65.3127  0.12278           0.250366
+  14 │     14  -65.1144  0.069348          0.155884
+  15 │     15  -65.1161  0.0252969         0.209839
+  16 │     16  -65.1146  0.212268          0.251709
+  17 │     17  -64.7547  0.29173           0.193848
+  18 │     18  -65.0212  0.211302          0.262207
+  19 │     19  -64.8815  0.092173          0.150391
+  20 │     20  -65.2299  0.133678          0.227295
+ 
+# END [Training]
+ 
+# [MCMC steps]
+# Acceptance Rate: 0.0048828125
+# END [MCMC steps]
+ 
+# Susceptibility: 0.17465136492340733 +/- 0.12550126434951087
+ ---------------------------------------------------------------------------
+                                   Time                    Allocations      
+                          -----------------------   ------------------------
+     Tot / % measured:          221s /  82.1%            105GiB /  92.6%    
+
+ Section          ncalls     time    %tot     avg     alloc    %tot      avg
+ ---------------------------------------------------------------------------
+ Training             20     142s   78.3%   7.12s   76.1GiB   78.0%  3.81GiB
+ MCMC step            21    32.5s   17.9%   1.55s   19.6GiB   20.1%  0.93GiB
+   Evolve flow     2.69k    32.0s   17.6%  11.9ms   19.4GiB   19.9%  7.40MiB
+ Affine Layers         1    4.23s    2.3%   4.23s    256MiB    0.3%   256MiB
+ Susceptibility        1    1.58s    0.9%   1.58s   1.31GiB    1.3%  1.31GiB
+   Green              16    1.42s    0.8%  88.7ms   1.24GiB    1.3%  79.3MiB
+ Evolve flow          22    1.13s    0.6%  51.4ms    398MiB    0.4%  18.1MiB
+ ---------------------------------------------------------------------------

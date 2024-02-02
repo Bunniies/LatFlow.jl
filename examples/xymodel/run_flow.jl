@@ -32,7 +32,7 @@ function parse_arg(fname)
 
     if f["Action"]["name"] == "phi4"
         filename = string("./", f["Run"]["log_dir"], f["Run"]["name"], "_m2", f["Action"]["m2"], "_lamda", f["Action"]["lambda"], ".log")
-    elseif  f["Action"]["name"] == "xy"
+    elseif  f["Action"]["name"] == "xymodel"
         filename = string("./", f["Run"]["log_dir"], f["Run"]["name"], "_beta", f["Action"]["beta"], ".log")
     end
     
@@ -56,7 +56,7 @@ function parse_arg(fname)
     if f["Action"]["name"] == "phi4"
         println(flog, "# m2:           ", f["Action"]["m2"])
         println(flog, "# lambda:       ", f["Action"]["lambda"])
-    elseif  f["Action"]["name"] == "xy"
+    elseif  f["Action"]["name"] == "xymodel"
         println(flog, "# beta:         ", f["Action"]["beta"])
     end
     println(flog, " ")
@@ -101,12 +101,12 @@ function parse_arg(fname)
     println(flog, "# END [Environment Info]")
     println(flog, " ")
 
-
-    prior = get_prior(f["Priors"]["prior"])
+    fpr = f["Priors"]
+    prior = get_prior(fpr["prior"], a=fpr["a"], b=fpr["b"], mu=fpr["mu"], k=fpr["k"])
     action = if f["Action"]["name"] == "phi4"
                 Phi4ScalarAction(ap.m2, ap.lambda)
-            elseif f["Action"]["name"] == "xy"
-                error("Action for xy model not yet implemented.")
+            elseif f["Action"]["name"] == "xymodel"
+                XYmodelAction(ap.beta)
             end
 
     layers = if !f["Run"]["pretrained"]
@@ -125,6 +125,10 @@ parsed_flags = parse_flag()
 infile = parsed_flags["i"]
 hp, prior, action, _layers, flog, nsamples, ntherm, seed = parse_arg(infile)
 
+
+# check 
+println(action)
+println(prior)
 
 # training
 println(flog, "# [START TRAINING]")

@@ -51,7 +51,7 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
         println(flog, "    loss: $(loss)")
         println(flog, "    ess:  $(ess)")
 
-        nsamples=8196
+        nsamples=8192
         hist_mcmc = build_mcmc(prior, affine_layers, action, batchsize=batch_size, nsamples=nsamples, lattice_shape=ap.lattice_shape, device=device )
         acc = hist_mcmc[!,"accepted"] |> mean
         println(flog, "    acc: $(acc)")
