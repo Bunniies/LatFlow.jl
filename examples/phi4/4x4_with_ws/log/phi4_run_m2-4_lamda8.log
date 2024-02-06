@@ -1,0 +1,45 @@
+# [Environment Info]
+# User:       alessandro
+# Host:       propagate
+# Run name:   phi4_run
+# Load model: false
+ 
+# [Device Info]
+# Device:    cpu
+# Device id: -1
+ 
+# [Lattice Setup]
+# Action:       phi4
+# Lattice size: [4, 4]
+# m2:           -4
+# lambda:       8
+ 
+# [Model Parameters]
+# Input channel:   1
+# Output channel:  2
+# Affine layers:   16
+# Hidden channels: [8, 8]
+# Kernel size:     3
+# Use tanh:        true
+# Batch norm:      false
+# Seed:            1994
+ 
+# [Training Parameters]
+# Epochs:        10
+# Iterations:    100
+# Batch size     64
+# Learning rate: 0.001
+ 
+# [Priors]
+Prior: Normal
+ 
+# [Mcmc]
+Nsamples: 8192
+Ntherm:   512
+ 
+# NVIDIA driver for GPU not installed.
+# Training is performed on CPU.
+ 
+# END [Environment Info]
+ 
+# [START TRAINING]

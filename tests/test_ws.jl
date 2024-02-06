@@ -1,32 +1,65 @@
+using Revise
+using LatFlow
 using TimerOutputs, Distributions, Random
 
+
+batch_size=64
+lat_shape=(8,8)
 prior = Normal{Float32}(0.f0, 1.f0)
+hp = HyperParams()
 
-struct Myworkspace
-    xpr
-    function Myworkspace(::Type{T}, lat_shape,  batch_size) where {T<:AbstractFloat}
-        _xpr = Array{T,4}(undef, lat_shape..., 1, batch_size)
-        return new(_xpr)
-    end
+nfws = NFworkspace{8,64}(Float32,hp)
+nfws.xpr4d
+
+layer = create_affine_layers(hp, nfws=nfws)
+
+
+for k in 1:200
+    evolve_prior_with_flow(prior, layer, device=hp.dp.device, nfws=nfws)
 end
+##
 
-lat_shape = (8,8)
-batch_size = 64
 
-ws = Myworkspace(Float32, lat_shape, batch_size)
+print_timer(linechars=:ascii)
 
+##
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##
+batch_size=64
+lat_shape=(8,8)
+prior = Normal{Float32}(0.f0, 1.f0)
 
 function fill_arr!(arr)
     rand!(prior, arr)
-    #for k in eachindex(arr)
-    #    arr[k] = rand!(prior)
-    #end
 end
 
 for k in 1:1e5
     @timeit "With ws" begin
         #fill_arr!(ws.xpr)
-        rand!(prior, ws.xpr )
+        #rand!(prior, nfws.xpr3d )
+        nfws.xpr3d .= Flux.unsqueeze(rand())
+        # nfws.xpr3d .= 5.
         # ws.xpr[:,:,:] = rand(prior, lat_shape..., batch_size)
     end
 end

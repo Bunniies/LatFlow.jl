@@ -3,7 +3,7 @@ module Models
 using Flux
 using Flux: onehotbatch, onecold, @epochs, @functor
 using CUDA
-using Distributions, TimerOutputs
+using Distributions, TimerOutputs, Random, UnPack
 
 
 using ..Params, ..Priors

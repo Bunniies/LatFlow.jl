@@ -32,6 +32,7 @@ function get_training_param(layer)
     ps = Flux.params(layer)
     for k in eachindex(layer)
         delete!(ps, layer[k].mask)
+        delete!(ps,layer[k].nfws)
     end
     return ps
 end

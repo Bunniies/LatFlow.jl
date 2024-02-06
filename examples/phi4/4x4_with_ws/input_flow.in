@@ -1,0 +1,44 @@
+[Run]
+user = "alessandro"
+host = "propagate"
+name = "phi4_run"
+log_dir = "log/"
+output_dir = "trainedNet/"
+pretrained = false          # if true load pretrained model
+
+[Action]
+name = "phi4"
+lattice_shape = [4,4]
+m2 = -4        
+lambda = 8
+beta = 2          # required for xy model only 
+
+[Device]
+id = 0 #  GPU id. id<0 for CPU training 
+
+[Model]
+seed = 1994
+inCh = 1          # input channels
+outCh = 2         # output channels
+n_layers = 16     # n. of affine layers 
+hidden_ch = [8,8] # n. hidden channels
+kernel_size = 3
+use_tanh = true   # use tanh activation in last layer
+use_bn = false    # use batch norm
+
+[Training]
+epochs = 10
+iterations = 100
+batch_size = 64
+eta_lr = 0.001
+
+[Priors]
+prior = "Normal" # "VonMisses" supported for xy model
+a = 0.0          # MultivariateUniform [a,b]
+b = 6.2          # MultivariateUniform [a,b]
+mu = 0.0         # VonMises(mu, k)
+k = 4.0          # VonMises(mu, k)
+
+[Mcmc]
+nsamples = 8192 # Monte Carlo samples
+ntherm = 512    # Thermalization steps

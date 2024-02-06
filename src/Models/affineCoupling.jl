@@ -1,20 +1,24 @@
-struct AffineCoupling{Model, Mask}
+struct AffineCoupling{Model, Mask, Workspace}
     nn::Model
     mask::Mask
+    nfws::Workspace
 end
 
 Flux.@functor AffineCoupling
 
-function (layer::AffineCoupling)(cnfg)
-    x_pr = cnfg[1]
-    logq_prec = cnfg[2]
-    x_pr_frozen =  layer.mask .* x_pr
-    x_pr_active = x_pr .* (1 .- layer.mask)
-    nn_output = layer.nn(Flux.unsqueeze(x_pr_frozen, dims=ndims(x_pr_frozen)))
-    s = nn_output[:,:,1,:] 
-    t = nn_output[:,:,2,:] 
-    fx = @. (1 - layer.mask) * t +  x_pr_active * exp(s) + x_pr_frozen
-    logJ = sum((1 .- layer.mask) .* s, dims=1:(ndims(s)-1)) 
+function (layer::AffineCoupling)((x_pr, logq_prec))
+    
+    @unpack nn, mask, nfws = layer            
+    nfws.xfrozen .= mask .* x_pr
+    nfws.xactive .= x_pr .* (1 .- mask)
+    nfws.xpr4d .= Flux.unsqueeze(nfws.xfrozen, dims=ndims(nfws.xfrozen))
+    @timeit "model" begin
+        nfws.nnoutput .= nn(nfws.xpr4d)
+    end
+    nfws.s .= nfws.nnoutput[:,:,1,:] 
+    nfws.t .= nfws.nnoutput[:,:,2,:] 
+    fx = @. (1 - mask) * nfws.t + nfws.xactive * exp(nfws.s) + nfws.xfrozen
+    logJ = sum((1 .- mask) .* nfws.s, dims=1:(ndims(nfws.s)-1)) 
     return fx, logq_prec .- logJ
 end
 forward(layer::AffineCoupling, cnfg) = layer(cnfg)
@@ -38,7 +42,7 @@ function freezing_mask(shape, parity)
     return mask
 end
 
-function create_affine_layers(hp::HyperParams)
+function create_affine_layers(hp::HyperParams; nfws::NFworkspace)
     @timeit "Affine Layers" begin
         n_layers = hp.mp.n_layers
         device = hp.dp.device
@@ -47,7 +51,7 @@ function create_affine_layers(hp::HyperParams)
         for k in 0:(n_layers-1)
             net = build_cnn(hp.mp)
             mask = freezing_mask(hp.ap.lattice_shape, mod(k,2))
-            tmp_coupling = AffineCoupling(Chain(net...), mask) 
+            tmp_coupling = AffineCoupling(Chain(net...), mask, nfws) 
             push!(couplings, tmp_coupling) 
         end
         affine_layers = Chain(couplings...) |> f32 |> device
@@ -55,12 +59,11 @@ function create_affine_layers(hp::HyperParams)
     end
 end
 
-function evolve_prior_with_flow(prior, affine_layer; batchsize, lattice_shape, device)
+function evolve_prior_with_flow(prior, affine_layer; device, nfws::NFworkspace)
     @timeit "Evolve flow" begin    
-        x_pr =  rand(prior, lattice_shape..., batchsize ) 
-        logq_prec = sum(logpdf.(prior, x_pr), dims=(1:ndims(x_pr)-1)) |> device
-        x_pr_device = x_pr |> device
-        xout, logq = affine_layer((x_pr_device, logq_prec ))
+        rand!(prior, nfws.xpr3d ) 
+        logq_prec = sum(logpdf.(prior, nfws.xpr3d), dims=(1:ndims(nfws.xpr3d)-1)) 
+        xout, logq = affine_layer((nfws.xpr3d, logq_prec ))
         return xout, logq
     end
 end

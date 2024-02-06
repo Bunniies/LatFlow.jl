@@ -1,10 +1,10 @@
-function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="", savemode::Bool=true )
+function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="", savemode::Bool=true, nfws::NFworkspace)
 
     @unpack dp, ap, mp, tp = hp
     @unpack iterations, epochs, batch_size, eta_lr = tp
     device = dp.device
 
-    affine_layers = create_affine_layers(hp)
+    affine_layers = create_affine_layers(hp, nfws=nfws)
     ps = get_training_param(affine_layers)
     opt = Adam(tp.eta_lr)
 
