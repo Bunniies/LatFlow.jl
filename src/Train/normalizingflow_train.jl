@@ -66,16 +66,16 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
                 println(flog, "    new best ess at epoch $(epoch)")
                 best_ess = ess
                 best_ess_epoch = epoch
-                BSON.@save joinpath("trainedNet", "model_best_ess.bson") affine_layers
-                BSON.@save joinpath("trainedNet", "history_best_ess.bson") hist_mcmc
+                BSON.@save joinpath("trainedNet", "model_best_ess_ep$(epoch).bson") affine_layers
+                BSON.@save joinpath("trainedNet", "history_best_ess_ep$(epoch).bson") hist_mcmc
             end
             # save model with best acc
             if acc >= best_acc
                 println(flog, "    new best acceptance rate at epoch $(epoch)")
                 best_acc = acc
                 best_acc_epoch = epoch
-                BSON.@save joinpath("trainedNet", "model_best_acc.bson") affine_layers
-                BSON.@save joinpath("trainedNet", "history_best_acc.bson") hist_mcmc
+                BSON.@save joinpath("trainedNet", "model_best_acc_ep$(epoch).bson") affine_layers
+                BSON.@save joinpath("trainedNet", "history_best_acc_ep$(epoch).bson") hist_mcmc
             end
         end
             
