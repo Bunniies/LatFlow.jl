@@ -1,4 +1,4 @@
-function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, device=cpu, seed=3430)
+function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, device=cpu, seed=3430, gauge_fix::Bool=true)
 
     rng = MersenneTwister(seed)
     mcmc_hist = DataFrame(
@@ -12,7 +12,7 @@ function build_mcmc(prior, layer, action; batchsize, nsamples, lattice_shape, de
     @timeit "MCMC step" begin
         
         for _ in 1:round(Int, nsamples/batchsize)
-            x_out_, logq = evolve_prior_with_flow(prior, layer, batchsize=batchsize, lattice_shape=lattice_shape, device=device)
+            x_out_, logq = evolve_prior_with_flow(prior, layer, batchsize=batchsize, lattice_shape=lattice_shape, device=device, gauge_fix=gauge_fix)
             logq = vec(logq) |> cpu
             logp = -action(x_out_) |> cpu
             x_out = x_out_ |> cpu

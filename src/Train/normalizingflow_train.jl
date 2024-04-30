@@ -1,12 +1,24 @@
-function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="", savemode::Bool=true )
+function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="", savemode::Bool=true, gauge_fix::Bool=true, load_model::Union{String, Nothing}=nothing )
 
     @unpack dp, ap, mp, tp = hp
     @unpack iterations, epochs, batch_size, eta_lr = tp
     device = dp.device
 
-    affine_layers = create_affine_layers(hp)
-    ps = get_training_param(affine_layers)
-    opt = Adam(tp.eta_lr)
+    if isnothing(load_model)
+        affine_layers = create_affine_layers(hp)
+        ps = get_training_param(affine_layers)
+    else
+        println(flog, "model loaded from: ", load_model)
+        model_state = JLD2.load(load_model, "model_state")
+        affine_layers = create_affine_layers(hp)   
+        Flux.loadmodel!(affine_layers, model_state)
+        ps = get_training_param(affine_layers)
+    end
+
+    # opt = Flux.Adam(tp.eta_lr)
+    opt = Flux.Optimise.Optimiser(ClipValue(1.2f0), Flux.Adam(tp.eta_lr))
+    sched = Stateful(Step(tp.eta_lr, 0.9, 10000))
+    # opt = Flux.Optimise.Optimiser(Adam(), Flux.Optimise.ExpDecay(1.0, 1000 ) )
 
     history = DataFrame(
         "epochs"          => Int[],
@@ -27,8 +39,10 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
         @timeit "Training" begin
             for _ in 1:iterations
                 x_pr = rand(prior, ap.lattice_shape..., batch_size ) |> device
+                if gauge_fix
+                    x_pr[1,1,:] .= 0.0 
+                end
                 logq_prec = sum(logpdf.(prior, x_pr), dims=1:ndims(x_pr)-1) |> device
-                #x_pr_dev = x_pr |> device
 
                 grads = Flux.gradient(ps) do 
                     x_out, logq_ = affine_layers((x_pr, logq_prec)) 
@@ -36,13 +50,14 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
                     logp = - action(x_out)
                     loss = compute_KL_div(logp, logq |> device)
                 end
-                Flux.Optimise.update!(opt, ps, grads)
+                Flux.update!(opt, ps, grads)
+                opt.os[2].eta = next!(sched)
             end
         end 
 
         # test mode 
         Flux.testmode!(affine_layers)
-        x_out, logq = evolve_prior_with_flow(prior, affine_layers, batchsize=batch_size, lattice_shape=ap.lattice_shape, device=device)
+        x_out, logq = evolve_prior_with_flow(prior, affine_layers, batchsize=batch_size, lattice_shape=ap.lattice_shape, device=device, gauge_fix=gauge_fix)
         logq = dropdims(logq, dims=(1,ndims(logq)-1))
 
         logp = -action(x_out)
@@ -50,11 +65,17 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
         ess = compute_ESS(logp, logq |> device)
         println(flog, "    loss: $(loss)")
         println(flog, "    ess:  $(ess)")
+        println(flog, "    eta:  $(opt.os[2].eta)")
+        println(
+        "    loss: $(loss)")
+        println("    eta:  $(opt.os[2].eta)")
 
-        nsamples=8192
-        hist_mcmc = build_mcmc(prior, affine_layers, action, batchsize=batch_size, nsamples=nsamples, lattice_shape=ap.lattice_shape, device=device )
+        # nsamples=8192
+        # hist_mcmc = build_mcmc(prior, affine_layers, action, batchsize=batch_size, nsamples=nsamples, lattice_shape=ap.lattice_shape, device=device, gauge_fix=gauge_fix)
+        nsamples=2^8
+        hist_mcmc = build_mcmc(prior, affine_layers, action, batchsize=2^5, nsamples=nsamples, lattice_shape=ap.lattice_shape, device=device, gauge_fix=gauge_fix)
         acc = hist_mcmc[!,"accepted"] |> mean
-        println(flog, "    acc: $(acc)")
+        println(flog, "     acc: $(acc)")
         push!(history[!,"epochs"], epoch)
         push!(history[!,"loss"], loss)
         push!(history[!,"ess"], ess)
@@ -66,7 +87,7 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
                 println(flog, "    new best ess at epoch $(epoch)")
                 best_ess = ess
                 best_ess_epoch = epoch
-                BSON.@save joinpath("trainedNet", "model_best_ess_ep$(epoch).bson") affine_layers
+                jldsave(joinpath("trainedNet", "model_best_ess_ep$(epoch).jld2"), model_state=Flux.state(cpu(affine_layers)))
                 BSON.@save joinpath("trainedNet", "history_best_ess_ep$(epoch).bson") hist_mcmc
             end
             # save model with best acc
@@ -74,7 +95,8 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
                 println(flog, "    new best acceptance rate at epoch $(epoch)")
                 best_acc = acc
                 best_acc_epoch = epoch
-                BSON.@save joinpath("trainedNet", "model_best_acc_ep$(epoch).bson") affine_layers
+                # BSON.@save joinpath("trainedNet", "model_best_acc_ep$(epoch).bson") affine_layers
+                jldsave(joinpath("trainedNet","model_best_acc_ep$(epoch).jld2"), model_state=Flux.state(cpu(affine_layers)))
                 BSON.@save joinpath("trainedNet", "history_best_acc_ep$(epoch).bson") hist_mcmc
             end
         end
