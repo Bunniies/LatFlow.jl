@@ -1,4 +1,4 @@
-function get_prior(type::String="Normal"; mu=0.0, k=8.0, a=0, b=1)
+function get_prior(type::String="Normal"; mu=0.0f0, k=8.0f0, a=0, b=1)
    
     if type == "Normal"
         prior = Normal{Float32}(0.f0, 1.f0)

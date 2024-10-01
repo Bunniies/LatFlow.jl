@@ -40,9 +40,13 @@ function build_cnn(mp::ModelParams)
         push!(net, x-> Flux.NNlib.pad_circular(x,(1,1,1,1) ))
         push!(net, Conv(kernel_size, ch_tot[kch]=>ch_tot[kch+1], pad=0, stride=1))
         if kch != length(ch_tot)-1
-            push!(net, x -> leakyrelu.(x, 0.2f0))
+            if !mp.use_bn
+                push!(net, x -> leakyrelu.(x, 0.2f0))
+            else
+                push!(net, BatchNorm(ch_tot[kch+1], leakyrelu))
+            end
         else
-            if mp.use_tanh_last
+            if mp.use_tanh_last 
                 push!(net, x -> tanh.(x))
             end
         end

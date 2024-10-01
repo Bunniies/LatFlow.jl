@@ -59,7 +59,7 @@ function evolve_prior_with_flow(prior, affine_layer; batchsize, lattice_shape, d
     @timeit "Evolve flow" begin    
         x_pr =  rand(prior, lattice_shape..., batchsize ) 
         if gauge_fix
-            x_pr[1,1,:] .= 0.0 # gauge fixing
+            x_pr[1,1,:] .= 0.0f0 # gauge fixing
         end
         logq_prec = sum(logpdf.(prior, x_pr), dims=(1:ndims(x_pr)-1)) |> device
         x_pr_device = x_pr |> device

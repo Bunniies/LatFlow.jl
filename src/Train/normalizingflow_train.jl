@@ -15,10 +15,9 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
         ps = get_training_param(affine_layers)
     end
 
-    # opt = Flux.Adam(tp.eta_lr)
-    opt = Flux.Optimise.Optimiser(ClipValue(1.2f0), Flux.Adam(tp.eta_lr))
-    sched = Stateful(Step(tp.eta_lr, 0.9, 10000))
-    # opt = Flux.Optimise.Optimiser(Adam(), Flux.Optimise.ExpDecay(1.0, 1000 ) )
+    # opt = Flux.Optimise.Optimiser(Flux.Optimise.ClipNorm(0.5f0), Flux.Adam(tp.eta_lr))
+    opt = Flux.Optimise.Optimiser(Flux.Adam(tp.eta_lr))
+    sched = Stateful(Step(tp.eta_lr, 0.9, 1000))
 
     history = DataFrame(
         "epochs"          => Int[],
@@ -40,7 +39,7 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
             for _ in 1:iterations
                 x_pr = rand(prior, ap.lattice_shape..., batch_size ) |> device
                 if gauge_fix
-                    x_pr[1,1,:] .= 0.0 
+                    x_pr[1,1,:] .= 0.0f0 
                 end
                 logq_prec = sum(logpdf.(prior, x_pr), dims=1:ndims(x_pr)-1) |> device
 
@@ -51,7 +50,7 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
                     loss = compute_KL_div(logp, logq |> device)
                 end
                 Flux.update!(opt, ps, grads)
-                opt.os[2].eta = next!(sched)
+                opt.os[1].eta = next!(sched)     
             end
         end 
 
@@ -65,10 +64,9 @@ function train(hp::HyperParams, action, prior; flog::Union{String, IOStream}="",
         ess = compute_ESS(logp, logq |> device)
         println(flog, "    loss: $(loss)")
         println(flog, "    ess:  $(ess)")
-        println(flog, "    eta:  $(opt.os[2].eta)")
+        println(flog, "    eta:  $(opt.os[1].eta)")
         println(
         "    loss: $(loss)")
-        println("    eta:  $(opt.os[2].eta)")
 
         # nsamples=8192
         # hist_mcmc = build_mcmc(prior, affine_layers, action, batchsize=batch_size, nsamples=nsamples, lattice_shape=ap.lattice_shape, device=device, gauge_fix=gauge_fix)
